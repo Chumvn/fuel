@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="CHUM Fuel - Tính tiền xăng thuê xe tự lái với nhiều phương pháp">
+    <meta name="theme-color" content="#e0e5ec">
+    <title>CHUM Fuel - Tính xăng thuê xe</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">⛽</div>
+            <h1 class="title">CHUM Fuel</h1>
+            <p class="subtitle">Tính xăng thuê xe tự lái — nhiều phương pháp</p>
+        </header>
+
+        <!-- Method Selector (Compact) -->
+        <div class="segment-control compact" id="methodSelector">
+            <button class="segment active" data-method="trip">Trip</button>
+            <button class="segment" data-method="distance">Quãng đường</button>
+            <button class="segment" data-method="fuel">Xăng thực tế</button>
+            <button class="segment" data-method="gauge">Vạch taplo</button>
+        </div>
+
+        <!-- Card B: Common Data -->
+        <div class="card">
+            <h2 class="card-title">⚙️ Thông số chung</h2>
+
+            <div class="form-group">
+                <label>Giá xăng (VND/lít)</label>
+                <div class="stepper">
+                    <button class="neu-btn stepper-btn" data-action="decrease" data-target="fuelPrice"
+                        data-step="500">−</button>
+                    <input type="number" id="fuelPrice" class="neu-input stepper-input" value="20000" min="10000"
+                        max="40000">
+                    <button class="neu-btn stepper-btn" data-action="increase" data-target="fuelPrice"
+                        data-step="500">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Tiêu hao (L/100km)</label>
+                <div class="stepper">
+                    <button class="neu-btn stepper-btn" data-action="decrease" data-target="fuelConsumption"
+                        data-step="0.5">−</button>
+                    <input type="number" id="fuelConsumption" class="neu-input stepper-input" value="8" min="4" max="20"
+                        step="0.1">
+                    <button class="neu-btn stepper-btn" data-action="increase" data-target="fuelConsumption"
+                        data-step="0.5">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Dung tích bình (L)</label>
+                <div class="stepper">
+                    <button class="neu-btn stepper-btn" data-action="decrease" data-target="tankSize"
+                        data-step="5">−</button>
+                    <input type="number" id="tankSize" class="neu-input stepper-input" value="55" min="20" max="100">
+                    <button class="neu-btn stepper-btn" data-action="increase" data-target="tankSize"
+                        data-step="5">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Phụ phí điều kiện</label>
+                <div class="toggle-group">
+                    <label class="toggle-item">
+                        <input type="checkbox" id="condCity" class="toggle-input">
+                        <span class="toggle-label">🏙️ Nội thành (+10%)</span>
+                    </label>
+                    <label class="toggle-item">
+                        <input type="checkbox" id="condHighway" class="toggle-input">
+                        <span class="toggle-label">🛣️ Cao tốc (−10%)</span>
+                    </label>
+                    <label class="toggle-item">
+                        <input type="checkbox" id="condAC" class="toggle-input">
+                        <span class="toggle-label">❄️ Máy lạnh mạnh (+5%)</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card C: Dynamic Forms -->
+        <div class="card" id="formCard">
+            <!-- Trip A/B Method -->
+            <div class="method-form active" id="form-trip">
+                <h2 class="card-title">🔢 Trip A/B</h2>
+                <div class="form-group">
+                    <label>Km theo Trip</label>
+                    <input type="number" id="tripKm" class="neu-input" placeholder="Nhập số km" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Sai số Trip (%)</label>
+                    <div class="stepper">
+                        <button class="neu-btn stepper-btn" data-action="decrease" data-target="tripError"
+                            data-step="1">−</button>
+                        <input type="number" id="tripError" class="neu-input stepper-input" value="5" min="0" max="20">
+                        <button class="neu-btn stepper-btn" data-action="increase" data-target="tripError"
+                            data-step="1">+</button>
+                    </div>
+                    <small class="tip">💡 +5% cho xe cũ, 0% cho xe mới</small>
+                </div>
+                <div class="form-group">
+                    <label>Chọn Trip</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="tripType" value="A" checked> Trip A</label>
+                        <label class="radio-item"><input type="radio" name="tripType" value="B"> Trip B</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Distance Method -->
+            <div class="method-form" id="form-distance">
+                <h2 class="card-title">📏 Quãng đường thực tế</h2>
+                <div class="form-group">
+                    <label>Km thực tế</label>
+                    <input type="number" id="distanceKm" class="neu-input" placeholder="Nhập số km" min="0">
+                    <small class="tip">💡 Lấy theo Google Maps hoặc ODO tổng</small>
+                </div>
+            </div>
+
+            <!-- Actual Fuel Method -->
+            <div class="method-form" id="form-fuel">
+                <h2 class="card-title">⛽ Xăng thực tế (đổ lại)</h2>
+                <div class="form-group">
+                    <label>Số lít đổ lại</label>
+                    <input type="number" id="fuelLiters" class="neu-input" placeholder="Nhập số lít" min="0" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Km đã chạy (tuỳ chọn)</label>
+                    <input type="number" id="fuelKmDriven" class="neu-input" placeholder="Để tính đ/km & km/l" min="0">
+                    <small class="tip">💡 Đổ đầy → chạy → đổ đầy lại = số lít tiêu hao thật</small>
+                </div>
+            </div>
+
+            <!-- Gauge Method -->
+            <div class="method-form" id="form-gauge">
+                <h2 class="card-title">📊 Vạch xăng taplo</h2>
+                <small class="tip" style="display:block; margin-bottom: 16px;">💡 Tính tiền xăng dựa vào vạch đồng hồ
+                    taplo. Dung tích bình lấy từ Thông số chung.</small>
+
+                <div class="form-group">
+                    <label>Số vạch trên đồng hồ</label>
+                    <div class="stepper">
+                        <button class="neu-btn stepper-btn" data-action="decrease" data-target="gaugeTotalMarks"
+                            data-step="1">−</button>
+                        <input type="number" id="gaugeTotalMarks" class="neu-input stepper-input" value="8" min="4"
+                            max="12">
+                        <button class="neu-btn stepper-btn" data-action="increase" data-target="gaugeTotalMarks"
+                            data-step="1">+</button>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>Nhận xe (vạch)</label>
+                        <div class="stepper">
+                            <button class="neu-btn stepper-btn" data-action="decrease" data-target="gaugeStart"
+                                data-step="1">−</button>
+                            <input type="number" id="gaugeStart" class="neu-input stepper-input" value="3" min="0"
+                                max="12">
+                            <button class="neu-btn stepper-btn" data-action="increase" data-target="gaugeStart"
+                                data-step="1">+</button>
+                        </div>
+                    </div>
+                    <div class="form-group half">
+                        <label>Trả xe (vạch)</label>
+                        <div class="stepper">
+                            <button class="neu-btn stepper-btn" data-action="decrease" data-target="gaugeEnd"
+                                data-step="1">−</button>
+                            <input type="number" id="gaugeEnd" class="neu-input stepper-input" value="3" min="0"
+                                max="12">
+                            <button class="neu-btn stepper-btn" data-action="increase" data-target="gaugeEnd"
+                                data-step="1">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <span id="gaugeInfo">Bình 55L ÷ 8 vạch = 6.9L/vạch • Hao 0 vạch = 0.0L</span>
+                </div>
+
+                <div class="form-group" style="margin-top: 16px;">
+                    <label>Km đã chạy (tuỳ chọn)</label>
+                    <input type="number" id="gaugeKmDriven" class="neu-input" placeholder="Để tính đ/km & km/l" min="0">
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- Card D: Results (Sticky) -->
+        <div class="card results-card" id="resultsCard">
+            <h2 class="card-title">📋 Kết quả</h2>
+            <div class="kpi-grid">
+                <div class="kpi">
+                    <span class="kpi-value" id="resultFuelCost">0</span>
+                    <span class="kpi-label">Tiền xăng (VND)</span>
+                </div>
+                <div class="kpi">
+                    <span class="kpi-value" id="resultPerKm">0</span>
+                    <span class="kpi-label">VND/km</span>
+                </div>
+                <div class="kpi">
+                    <span class="kpi-value" id="resultLiters">0</span>
+                    <span class="kpi-label">Lít tiêu hao</span>
+                </div>
+                <div class="kpi">
+                    <span class="kpi-value" id="resultEfficiency">0</span>
+                    <span class="kpi-label">km/L</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Tiền thuê xe</label>
+                <div class="stepper">
+                    <button class="neu-btn stepper-btn" data-action="decrease" data-target="rentalCost"
+                        data-step="100000">−</button>
+                    <input type="number" id="rentalCost" class="neu-input stepper-input" value="500000" min="0"
+                        step="100000">
+                    <button class="neu-btn stepper-btn" data-action="increase" data-target="rentalCost"
+                        data-step="100000">+</button>
+                </div>
+            </div>
+
+            <div class="total-box">
+                <span class="total-label">TỔNG CHI PHÍ</span>
+                <span class="total-value" id="totalCost">0 VND</span>
+            </div>
+
+            <div class="btn-row">
+                <button id="btnExport" class="neu-btn primary">📤 Xuất kết quả</button>
+            </div>
+        </div>
+
+
+        <!-- Export Modal -->
+        <div id="exportModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📤 Xuất kết quả</h3>
+                    <button id="closeModal" class="close-btn">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="exportPreview" class="export-preview"></div>
+                    <div class="modal-actions">
+                        <button id="btnCopyText" class="neu-btn">📋 Copy Text</button>
+                        <button id="btnSaveImage" class="neu-btn primary">🖼️ Lưu ảnh</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>CHUM Fuel v1.0 • Made with ❤️</p>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
